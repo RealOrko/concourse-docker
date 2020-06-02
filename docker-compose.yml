@@ -1,25 +1,48 @@
 version: '3'
 
 services:
+  uaa:
+    image: pcfseceng/uaa
+    volumes: ["./config/uaa.yml:/uaa/uaa.yml"]
+    ports: [8090:8080]
+    restart: always
+    networks:
+      shared:
+        aliases: 
+          - uaa
+
+  credhub:
+    image: pcfseceng/credhub
+    ports: ["9000:9000"]
+    links: ["uaa:uaa"]
+    depends_on: [uaa]
+    environment:
+      UAA_URL: http://uaa:8080/uaa
+      UAA_INTERNAL_URL: http://uaa:8080/uaa
+    networks:
+      shared:
+        aliases: 
+          - credhub
+  
   db:
     image: postgres
+    depends_on: [credhub]
     environment:
       POSTGRES_DB: concourse
       POSTGRES_USER: concourse_user
       POSTGRES_PASSWORD: concourse_pass
-    logging:
-      driver: "json-file"
-      options:
-        max-file: "5"
-        max-size: "10m"
+    networks:
+      shared:
+        aliases: 
+          - db
 
   web:
     image: concourse/concourse
+    volumes: ["./keys/server_ca_cert.pem:/tmp/credhub.cacert"]
     command: web
-    links: [db]
-    depends_on: [db]
+    links: ["credhub:credhub"]
+    depends_on: [credhub,db]
     ports: ["8080:8080"]
-    volumes: ["./keys/web:/concourse-keys"]
     environment:
       CONCOURSE_EXTERNAL_URL: http://localhost:8080
       CONCOURSE_POSTGRES_HOST: db
@@ -28,11 +51,15 @@ services:
       CONCOURSE_POSTGRES_DATABASE: concourse
       CONCOURSE_ADD_LOCAL_USER: test:test
       CONCOURSE_MAIN_TEAM_LOCAL_USER: test
-    logging:
-      driver: "json-file"
-      options:
-        max-file: "5"
-        max-size: "10m"
+      CONCOURSE_CREDHUB_URL: https://credhub:9000/api/
+      CONCOURSE_CREDHUB_CLIENT_ID: credhub_client
+      CONCOURSE_CREDHUB_CLIENT_SECRET: secret
+      CONCOURSE_CREDHUB_CA_CERT: /tmp/credhub.cacert
+      CONCOURSE_CREDHUB_INSECURE_SKIP_VERIFY: "true"
+    networks:
+      shared:
+        aliases: 
+          - web
 
   worker:
     image: concourse/concourse
@@ -44,8 +71,10 @@ services:
     stop_signal: SIGUSR2
     environment:
       CONCOURSE_TSA_HOST: web:2222
-    logging:
-      driver: "json-file"
-      options:
-        max-file: "5"
-        max-size: "10m"
+    networks:
+      shared:
+        aliases: 
+          - worker
+
+networks:
+  shared:
