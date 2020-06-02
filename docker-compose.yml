@@ -13,7 +13,8 @@ services:
 
   credhub:
     image: pcfseceng/credhub
-    volumes: ["./utils/credhub-install.sh:/app/credhub-install.sh:ro"]
+    volumes: 
+      - "./utils/credhub-install.sh:/app/credhub-install.sh:ro"
     ports: ["9000:9000"]
     links: ["uaa:uaa"]
     depends_on: [uaa]
@@ -39,7 +40,9 @@ services:
 
   web:
     image: concourse/concourse
-    volumes: ["./keys/server_ca_cert.pem:/tmp/credhub.cacert","./keys/web:/concourse-keys"]
+    volumes: 
+      - "./keys/server_ca_cert.pem:/tmp/credhub.cacert"
+      - "./keys/web:/concourse-keys"
     command: web
     links: ["credhub:credhub"]
     depends_on: [credhub,db]
