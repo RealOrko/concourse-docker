@@ -52,7 +52,7 @@ Next you will need to install the credhub cli, please run this once:
 ./credhub-install.sh
 ```
 
-Once this is done, you are in a position to start setting some secrets:
+If this fails, please give it some time and run it again. Once this is done, you are in a position to start setting some secrets:
 
 ```shell
 credhub set -n /concourse/main/parameters/cat-name --type value --value garfield
