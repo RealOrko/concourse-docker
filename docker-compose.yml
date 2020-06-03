@@ -3,7 +3,8 @@ version: '3'
 services:
   uaa:
     image: pcfseceng/uaa
-    volumes: ["./config/uaa.yml:/uaa/uaa.yml"]
+    volumes: 
+      - "./config/uaa.yml:/uaa/uaa.yml"
     ports: [8090:8080]
     restart: always
     networks:
@@ -15,6 +16,7 @@ services:
     image: pcfseceng/credhub
     volumes: 
       - "./utils/credhub-install.sh:/app/credhub-install.sh:ro"
+      - "./config/credhub.yml:/app/config/application.yml"
     ports: ["9000:9000"]
     links: ["uaa:uaa"]
     depends_on: [uaa]
