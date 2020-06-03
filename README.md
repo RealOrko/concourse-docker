@@ -42,16 +42,11 @@ docker-compose logs -f
 
 First you need a shell to the container running credhub, please run:
 
-```shell
-
 [./utils/credhub-shell.sh](https://github.com/RealOrko/concourse-docker/blob/master/utils/credhub-shell.sh)
-```
 
 Next you will need to install the credhub cli, please run this once: 
 
-```shell
 [./credhub-install.sh](https://github.com/RealOrko/concourse-docker/blob/master/utils/credhub-install.sh)
-```
 
 If this fails, please give it some time and run it again. Once this is done, you are in a position to start setting some secrets:
 
@@ -65,9 +60,7 @@ credhub set -n /concourse/main/parameters/dog-name --type value --value odie
 You can login, create, unpause and run the test pipeline by running the 
 following script:
 
-```shell
 [./utils/install-and-run-pipeline.sh](https://github.com/RealOrko/concourse-docker/blob/master/utils/install-and-run-pipeline.sh)
-```
 
 ## Credentials
 
