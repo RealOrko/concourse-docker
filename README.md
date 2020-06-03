@@ -1,69 +1,85 @@
-# Concourse Docker
+# Concourse with Credhub and UAA using Docker Compose
 
-This Docker image simply packages up the official `concourse` binary and
-configures it as the `ENTRYPOINT`, with a bunch of sane defaults for Docker.
+This is a local development environment for concourse with credhub.
 
-Configuration is done via `CONCOURSE_*` environment variables. To discover
-them, run `--help`:
+## Prerequisites
 
-```sh
-docker run -t concourse/concourse --help
-docker run -t concourse/concourse web --help
-docker run -t concourse/concourse worker --help
+You must make sure you have the following pre-requisites installed: 
+
+ - [docker ce](https://docs.docker.com/get-docker/)
+ - [fly cli](https://github.com/concourse/concourse/releases)
+
+## Getting Started
+
+Please run the following the following command from your the directory
+where you checked the project out.
+
+```shell
+docker-compose up -d
 ```
 
-See [the Concourse install docs](https://concourse-ci.org/install.html) for more
-information on deploying and managing Concourse - the Docker repository just
-wraps the `concourse` binary, so the documentation covers it too.
+This should launch:
+ 
+ - concourse web
+ - concourse worker
+ - credhub 
+ - uaa
+ - postgresql
 
-## Running with `docker-compose`
+To make sure everything has started properly please run: 
 
-The `docker-compose.yml` in this repo will get you up and running with the
-latest version Concourse. To use it you'll first need to execute
-`./keys/generate` - this will generate credentials used to authorize the
-Concourse components with each-other:
-
-```sh
-$ ./keys/generate
-wrote private key to /keys/session_signing_key
-wrote private key to /keys/tsa_host_key
-wrote ssh public key to /keys/tsa_host_key.pub
-wrote private key to /keys/worker_key
-wrote ssh public key to /keys/worker_key.pub
+```shell
+docker ps
 ```
 
-Next, run `docker-compose up -d` to start Concourse in the background:
+You can also see logs from docker-compose by running: 
 
-```sh
-$ docker-compose up -d
-Starting concourse-docker_db_1 ... done
-Starting concourse-docker_web_1 ... done
-Starting concourse-docker_worker_1 ... done
+```shell
+docker-compose logs -f
 ```
 
-The default configuration sets up a `test` user with `test` as their password
-and grants them access to `main` team. To use this in production you'll
-definitely want to change that - see [Auth &
-Teams](https://concourse-ci.org/auth.html) for more information..
+### Gaining access to the credhub via the CLI
 
-If things seem to be going wrong, check the logs for any errors:
+First you need a shell to the container running credhub, please run:
 
-```sh
-$ docker-compose logs -f
-Attaching to concourse-docker_worker_1, concourse-docker_web_1, concourse-docker_db_1
-...
+```shell
+./utils/credhub-shell.sh
 ```
 
-## Running with `docker run`
+Next you will need to install the credhub cli, please run this once: 
 
-Concourse components can also be run with regular old `docker run` commands.
-Please use `docker-compose.yml` as the canonical reference for the necessary
-flags/vars and connections between components. Further documentation on
-configuring Concourse is available in the [Concourse Install
-docs](https://concourse-ci.org/install.html).
+```shell
+./credhub-install.sh
+```
 
-## Building `concourse/concourse`
+Once this is done, you are in a position to start setting some secrets:
 
-The `Dockerfile` in this repo is built as part of our CI process - as such, it
-depends on having a pre-built `linux-rc` available in the working directory, and
-ends up being published as `concourse/concourse`.
+```shell
+credhub set -n /concourse/main/parameters/cat-name --type value --value garfield
+credhub set -n /concourse/main/parameters/dog-name --type value --value odie
+```
+
+## Creating a pipeline in concourse and testing secret access via credhub
+
+You can login, create, unpause and run the test pipeline by running the 
+following script:
+
+```shell
+./utils/install-and-run-pipeline.sh
+```
+
+## Credentials
+
+Below are the details of the credentials for your development envirnment.
+
+### Credhub
+
+ - shell: ./utils/credhub-shell.sh
+ - username: credhub
+ - password: password
+
+### Concourse
+
+ - url: http:/localhost:8080
+ - username: test
+ - password: test
