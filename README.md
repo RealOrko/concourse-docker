@@ -57,8 +57,7 @@ credhub set -n /concourse/main/parameters/dog-name --type value --value odie
 
 ## Creating a pipeline in concourse and testing secret access via credhub
 
-You can login, create, unpause and run the test pipeline by running the 
-following script:
+Please make sure you are not in the credhub shell. You can login, create, unpause and run the test pipeline by running the following script:
 
 [./utils/install-and-run-pipeline.sh](https://github.com/RealOrko/concourse-docker/blob/master/utils/install-and-run-pipeline.sh)
 
