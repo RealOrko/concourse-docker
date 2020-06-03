@@ -7,3 +7,5 @@ cp /app/credhub /usr/local/bin
 credhub --version
 credhub api https://credhub:9000 --skip-tls-validation
 credhub login -u credhub -p password
+credhub set -n /concourse/main/parameters/cat-name --type value --value garfield
+credhub set -n /concourse/main/parameters/dog-name --type value --value odie
