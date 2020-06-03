@@ -74,12 +74,12 @@ Below are the details of the credentials for your development envirnment.
 
 ### Credhub
 
- - shell: ./utils/credhub-shell.sh
- - username: credhub
- - password: password
+ - shell: `./utils/credhub-shell.sh`
+ - username: `credhub`
+ - password: `password`
 
 ### Concourse
 
- - url: http:/localhost:8080
- - username: test
- - password: test
+ - url: `http:/localhost:8080`
+ - username: `test`
+ - password: `test`
